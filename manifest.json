@@ -1,0 +1,25 @@
+{
+  "name": "Plug Era Widgicon Studio",
+  "short_name": "Plug Era",
+  "description": "iOS icon and widget layout organizer for the Plug Era aesthetic",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0A0010",
+  "theme_color": "#9747FF",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

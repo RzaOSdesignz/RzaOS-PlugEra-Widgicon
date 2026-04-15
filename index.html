@@ -1,0 +1,2190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Plug Era Widgicon Studio</title>
+<!-- PWA Meta Tags -->
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Plug Era" />
+<meta name="theme-color" content="#9747FF" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+/* ── PLUG ERA DESIGN TOKENS ─────────────────────────── */
+:root {
+  --purple: #9747FF;
+  --magenta: #FF1F8E;
+  --mint: #39FFC0;
+  --void: #0A0010;
+  --void-2: #100020;
+  --void-3: #1a0030;
+  --void-4: #22003a;
+  --border: rgba(151, 71, 255, 0.25);
+  --border-hover: rgba(151, 71, 255, 0.5);
+  --text: #f0e8ff;
+  --text-muted: #a090c0;
+  --text-faint: #5a4a7a;
+  --font-display: 'Syne', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  --glow-purple: 0 0 20px rgba(151, 71, 255, 0.5), 0 0 40px rgba(151, 71, 255, 0.2);
+  --glow-magenta: 0 0 20px rgba(255, 31, 142, 0.5), 0 0 40px rgba(255, 31, 142, 0.2);
+  --glow-mint: 0 0 20px rgba(57, 255, 192, 0.5), 0 0 40px rgba(57, 255, 192, 0.2);
+}
+
+/* ── RESET ───────────────────────────────────────────── */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body {
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--void);
+  overflow: hidden;
+}
+button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
+input, textarea, select { font: inherit; color: inherit; }
+p, li { max-width: 72ch; }
+
+/* ── SCROLLBAR ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(151,71,255,0.3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(151,71,255,0.6); }
+
+/* ── LAYOUT ──────────────────────────────────────────── */
+#app {
+  display: grid;
+  grid-template-columns: 240px 1fr 280px;
+  grid-template-rows: 48px 1fr;
+  height: 100dvh;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 90%, rgba(151,71,255,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 30% at 90% 10%, rgba(255,31,142,0.06) 0%, transparent 70%),
+    var(--void);
+}
+
+/* ── TOPBAR ──────────────────────────────────────────── */
+#topbar {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  background: rgba(10,0,16,0.9);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+}
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.topbar-logo svg { flex-shrink: 0; }
+.logo-plug { color: var(--purple); }
+.logo-era { color: var(--magenta); }
+.logo-rest { color: var(--text-muted); font-weight: 500; font-size: 13px; }
+.topbar-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+.topbar-tabs { display: flex; gap: 4px; }
+.tab-btn {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all var(--transition);
+  letter-spacing: 0.03em;
+}
+.tab-btn:hover { color: var(--text); background: rgba(151,71,255,0.1); }
+.tab-btn.active {
+  color: var(--purple);
+  background: rgba(151,71,255,0.15);
+  box-shadow: 0 0 10px rgba(151,71,255,0.2);
+}
+.topbar-spacer { flex: 1; }
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ── SIDEBAR ──────────────────────────────────────────── */
+#sidebar {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10,0,16,0.95);
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+.sidebar-section {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-section-title {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+  padding-left: 2px;
+}
+.sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px; }
+
+/* Upload zone */
+.upload-zone {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: rgba(151,71,255,0.03);
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--purple);
+  background: rgba(151,71,255,0.08);
+  box-shadow: 0 0 16px rgba(151,71,255,0.15);
+}
+.upload-zone svg { margin: 0 auto 6px; opacity: 0.5; }
+.upload-zone p { font-size: 11px; color: var(--text-muted); }
+.upload-zone p strong { color: var(--purple); }
+
+/* Icon library grid */
+#icon-library {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+.lib-icon {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition);
+  user-select: none;
+  background: var(--void-2);
+  border: 1px solid var(--border);
+}
+.lib-icon:hover { transform: scale(1.08); }
+.lib-icon.dragging { opacity: 0.5; cursor: grabbing; }
+.lib-icon .icon-emoji { font-size: 18px; line-height: 1; }
+.lib-icon .icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 13px;
+}
+.lib-icon .icon-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 7px;
+  text-align: center;
+  padding: 2px 2px 3px;
+  background: rgba(0,0,0,0.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+/* ── MAIN CANVAS AREA ────────────────────────────────── */
+#canvas-area {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: auto;
+  padding: 24px 16px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(151,71,255,0.04) 0%, transparent 70%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 39px,
+      rgba(151,71,255,0.04) 39px,
+      rgba(151,71,255,0.04) 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 39px,
+      rgba(151,71,255,0.04) 39px,
+      rgba(151,71,255,0.04) 40px
+    );
+}
+#canvas-area h2 {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 16px;
+}
+
+/* Compare mode */
+#compare-wrapper {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+#compare-wrapper.hidden { display: none; }
+#canvas-wrapper { display: block; }
+#canvas-wrapper.hidden { display: none; }
+
+/* Phone frame */
+.phone-frame-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.phone-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  text-align: center;
+}
+.phone-frame {
+  position: relative;
+  width: 320px;
+  background: #0e0018;
+  border-radius: 44px;
+  border: 2px solid rgba(151,71,255,0.35);
+  box-shadow:
+    0 0 0 6px rgba(20,0,40,0.9),
+    0 0 0 8px rgba(151,71,255,0.15),
+    0 30px 80px rgba(0,0,0,0.8),
+    0 0 60px rgba(151,71,255,0.1);
+  overflow: hidden;
+  user-select: none;
+}
+.phone-frame::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 26px;
+  background: #060010;
+  border-radius: 0 0 18px 18px;
+  z-index: 10;
+}
+.phone-notch-camera {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  transform: translateX(28px);
+  width: 9px;
+  height: 9px;
+  background: #1a1a2e;
+  border-radius: 50%;
+  z-index: 11;
+  border: 1px solid rgba(57,255,192,0.2);
+}
+.phone-screen {
+  position: relative;
+  width: 100%;
+  padding-top: 28px;
+  min-height: 560px;
+}
+
+/* Wallpaper canvas behind grid */
+#wallpaper-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+}
+
+/* Grid */
+#home-grid {
+  position: relative;
+  z-index: 1;
+  padding: 6px 8px 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  grid-template-rows: repeat(6, auto);
+  gap: 5px;
+  box-sizing: border-box;
+  width: 100%;
+  overflow: hidden;
+}
+#dock {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 5px;
+  margin: 5px 12px 10px;
+  padding: 7px 8px;
+  background: rgba(151,71,255,0.08);
+  border-radius: 22px;
+  border: 1px solid rgba(151,71,255,0.2);
+  backdrop-filter: blur(8px);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Grid cells */
+.grid-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: transform var(--transition);
+}
+.grid-cell.occupied { z-index: 2; }
+.grid-cell.drag-target .cell-placeholder { border-color: var(--purple); background: rgba(151,71,255,0.15); }
+.grid-cell.drag-target-invalid .cell-placeholder { border-color: var(--magenta); }
+.cell-placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  border: 1.5px dashed rgba(151,71,255,0.15);
+  transition: all var(--transition);
+}
+.cell-label {
+  font-size: 8px;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 2px;
+}
+/* Placed icon */
+.placed-icon {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: visible;
+  transition: transform var(--transition), box-shadow var(--transition);
+  background: var(--void-2);
+  border: 1px solid rgba(151,71,255,0.2);
+}
+.placed-icon:hover { transform: scale(1.06); }
+.placed-icon.selected { transform: scale(1.06); }
+.placed-icon .icon-emoji { font-size: 22px; line-height: 1; position: relative; z-index: 1; }
+.placed-icon .icon-custom-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px;
+}
+.placed-icon .icon-inner-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 15px;
+}
+.placed-icon .remove-btn {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 16px;
+  height: 16px;
+  background: #ff3b3b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity var(--transition);
+  cursor: pointer;
+}
+.placed-icon:hover .remove-btn { opacity: 1; }
+
+/* Widget spans */
+.widget-2x2 { grid-column: span 2; grid-row: span 2; }
+.widget-4x2 { grid-column: span 4; grid-row: span 2; }
+.widget-2x2 .placed-icon { aspect-ratio: 1; width: 100%; height: 100%; min-height: 80px; }
+.widget-4x2 .placed-icon { aspect-ratio: 2; width: 100%; height: 100%; min-height: 80px; border-radius: 20px; }
+
+/* Lock screen overlay */
+#lock-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  display: none;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(2px);
+}
+#lock-screen.visible { display: flex; }
+.lock-time {
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+  text-shadow: 0 0 30px rgba(151,71,255,0.6);
+}
+.lock-date {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 24px;
+}
+.lock-notifications {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 90%;
+}
+.lock-notif {
+  background: rgba(151,71,255,0.15);
+  border: 1px solid rgba(151,71,255,0.25);
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+  backdrop-filter: blur(8px);
+}
+.lock-notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--purple); flex-shrink: 0; }
+.lock-notif-text { color: rgba(255,255,255,0.8); }
+
+/* ── CONTROLS PANEL ──────────────────────────────────── */
+#controls {
+  grid-column: 3;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10,0,16,0.95);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+}
+.controls-section {
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.controls-section-title {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 10px;
+}
+
+/* Color swatches */
+.plug-colors {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.color-swatch {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all var(--transition);
+  position: relative;
+}
+.color-swatch:hover { transform: scale(1.1); }
+.color-swatch.active { border-color: white; }
+.color-swatch.active::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}
+.color-name {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 3px;
+  display: block;
+  letter-spacing: 0.04em;
+}
+
+/* Custom hex */
+.hex-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 8px;
+}
+.hex-preview {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+.hex-input {
+  flex: 1;
+  background: var(--void-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--text);
+  letter-spacing: 0.05em;
+  transition: border-color var(--transition);
+}
+.hex-input:focus { outline: none; border-color: var(--purple); }
+
+/* Glow intensity */
+.glow-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.range-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.range-val { color: var(--purple); font-weight: 600; }
+input[type=range] {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--void-3);
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--purple);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(151,71,255,0.6);
+}
+
+/* Generator */
+.gen-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+  align-items: center;
+}
+.gen-label { font-size: 11px; color: var(--text-muted); width: 48px; flex-shrink: 0; }
+.gen-input {
+  flex: 1;
+  background: var(--void-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  font-size: 12px;
+  color: var(--text);
+  transition: border-color var(--transition);
+}
+.gen-input:focus { outline: none; border-color: var(--purple); }
+.shape-btns { display: flex; gap: 4px; flex: 1; }
+.shape-btn {
+  flex: 1;
+  padding: 5px 0;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--void-2);
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+  letter-spacing: 0.02em;
+}
+.shape-btn:hover { border-color: var(--purple); color: var(--purple); }
+.shape-btn.active { background: rgba(151,71,255,0.2); border-color: var(--purple); color: var(--purple); }
+
+/* Icon preview */
+#gen-preview-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: var(--void-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+#gen-preview-canvas {
+  width: 80px;
+  height: 80px;
+  border-radius: 18px;
+}
+
+/* Buttons */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: all var(--transition);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--purple), rgba(151,71,255,0.7));
+  color: white;
+  border: 1px solid rgba(151,71,255,0.5);
+}
+.btn-primary:hover {
+  box-shadow: var(--glow-purple);
+  transform: translateY(-1px);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--border-hover); color: var(--text); }
+.btn-magenta {
+  background: linear-gradient(135deg, var(--magenta), rgba(255,31,142,0.7));
+  color: white;
+  border: 1px solid rgba(255,31,142,0.5);
+}
+.btn-magenta:hover { box-shadow: var(--glow-magenta); transform: translateY(-1px); }
+.btn-mint {
+  background: linear-gradient(135deg, var(--mint), rgba(57,255,192,0.7));
+  color: var(--void);
+  border: 1px solid rgba(57,255,192,0.5);
+}
+.btn-mint:hover { box-shadow: var(--glow-mint); transform: translateY(-1px); }
+.btn-sm { padding: 5px 10px; font-size: 10px; }
+.btn-block { width: 100%; }
+.btn-row { display: flex; gap: 6px; }
+.btn-row .btn { flex: 1; }
+
+/* Size buttons */
+.size-btns { display: flex; gap: 4px; margin-bottom: 8px; }
+.size-btn {
+  flex: 1;
+  padding: 5px 0;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--void-2);
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+}
+.size-btn:hover { border-color: var(--mint); color: var(--mint); }
+.size-btn.active { background: rgba(57,255,192,0.1); border-color: var(--mint); color: var(--mint); }
+
+/* Preset layouts */
+.preset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.preset-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--void-2);
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+  cursor: pointer;
+}
+.preset-item:hover { border-color: var(--border-hover); }
+.preset-item.active { border-color: var(--purple); background: rgba(151,71,255,0.1); }
+.preset-item-name {
+  flex: 1;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.preset-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.preset-delete {
+  font-size: 12px;
+  color: var(--text-faint);
+  padding: 0 2px;
+  transition: color var(--transition);
+}
+.preset-delete:hover { color: #ff3b3b; }
+.preset-input-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.preset-input-row input {
+  flex: 1;
+  background: var(--void-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  font-size: 12px;
+  color: var(--text);
+  transition: border-color var(--transition);
+}
+.preset-input-row input:focus { outline: none; border-color: var(--purple); }
+
+/* Export controls */
+.export-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.export-toggle {
+  width: 32px;
+  height: 18px;
+  background: var(--void-3);
+  border-radius: 9px;
+  position: relative;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+.export-toggle.on { background: rgba(151,71,255,0.5); border-color: var(--purple); }
+.export-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: white;
+  transition: transform var(--transition);
+}
+.export-toggle.on::after { transform: translateX(14px); }
+.export-toggle-label { font-size: 11px; color: var(--text-muted); }
+
+/* Wallpaper picker */
+.wallpaper-presets {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.wp-thumb {
+  aspect-ratio: 9/16;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all var(--transition);
+  overflow: hidden;
+}
+.wp-thumb:hover { border-color: var(--border-hover); }
+.wp-thumb.active { border-color: var(--purple); box-shadow: 0 0 8px rgba(151,71,255,0.4); }
+.wp-thumb canvas { width: 100%; height: 100%; display: block; }
+
+/* Selected icon panel */
+#selected-panel { display: none; }
+#selected-panel.visible { display: block; }
+
+/* Generator color dots */
+.gen-color-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+#no-selection-hint {
+  padding: 12px 14px;
+  font-size: 11px;
+  color: var(--text-faint);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Drag ghost */
+#drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.85;
+  display: none;
+}
+
+/* Toast */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--void-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  z-index: 9998;
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Comparison label */
+.compare-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+/* Empty state */
+.empty-state {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--text-faint);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.empty-state svg { margin: 0 auto 8px; opacity: 0.3; }
+
+/* Wallpaper time overlay */
+.screen-time-bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 16px 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  position: relative;
+  z-index: 1;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TOPBAR -->
+  <header id="topbar">
+    <!-- Logo SVG -->
+    <div class="topbar-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-label="Plug Era logo">
+        <rect x="2" y="2" width="20" height="20" rx="5" fill="rgba(151,71,255,0.15)" stroke="rgba(151,71,255,0.5)" stroke-width="1"/>
+        <circle cx="12" cy="12" r="4" fill="none" stroke="#9747FF" stroke-width="1.5"/>
+        <circle cx="12" cy="12" r="1.5" fill="#FF1F8E"/>
+        <line x1="12" y1="4" x2="12" y2="8" stroke="#9747FF" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="12" y1="16" x2="12" y2="20" stroke="#9747FF" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="4" y1="12" x2="8" y2="12" stroke="#FF1F8E" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="16" y1="12" x2="20" y2="12" stroke="#FF1F8E" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span><span class="logo-plug">PLUG</span><span class="logo-era"> ERA</span></span>
+      <span class="logo-rest">Widgicon Studio</span>
+    </div>
+    <div class="topbar-sep"></div>
+    <!-- View tabs -->
+    <div class="topbar-tabs">
+      <button class="tab-btn active" data-view="homescreen" onclick="switchView('homescreen')">HOME SCREEN</button>
+      <button class="tab-btn" data-view="lockscreen" onclick="switchView('lockscreen')">LOCK SCREEN</button>
+      <button class="tab-btn" data-view="compare" onclick="switchView('compare')">COMPARE</button>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-actions">
+      <button class="btn btn-secondary btn-sm" onclick="exportFullCanvas()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export PNG
+      </button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <!-- Upload Zone -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Upload Icons</div>
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p><strong>Drop PNGs/SVGs</strong><br/>or click to browse</p>
+      </div>
+      <input type="file" id="file-input" accept=".png,.svg,.jpg,.jpeg,.webp" multiple style="display:none" onchange="handleFileUpload(event)"/>
+    </div>
+    <!-- Icon Library -->
+    <div class="sidebar-section" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+      <div class="sidebar-section-title">Icon Library</div>
+      <div id="icon-library" style="overflow-y:auto;flex:1;"></div>
+    </div>
+  </aside>
+
+  <!-- MAIN CANVAS -->
+  <main id="canvas-area">
+    <!-- Single canvas wrapper -->
+    <div id="canvas-wrapper">
+      <h2>iPhone XS Max — 4×6 Grid</h2>
+      <div class="phone-frame-wrapper">
+        <div class="phone-frame" id="phone-frame">
+          <div class="phone-notch-camera"></div>
+          <div class="phone-screen" id="phone-screen">
+            <canvas id="wallpaper-canvas"></canvas>
+            <div class="screen-time-bar">
+              <span id="status-time">9:41</span>
+              <span>●●●●</span>
+            </div>
+            <!-- Home grid -->
+            <div id="home-grid"></div>
+            <!-- Dock -->
+            <div id="dock"></div>
+            <!-- Lock screen overlay -->
+            <div id="lock-screen">
+              <div class="lock-time" id="lock-time">9:41</div>
+              <div class="lock-date" id="lock-date">Monday, April 14</div>
+              <div class="lock-notifications">
+                <div class="lock-notif"><div class="lock-notif-dot" style="background:var(--magenta)"></div><div class="lock-notif-text">Messages · 3 new</div></div>
+                <div class="lock-notif"><div class="lock-notif-dot" style="background:var(--mint)"></div><div class="lock-notif-text">Plug Era · Layout saved</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compare wrapper (hidden by default) -->
+    <div id="compare-wrapper" class="hidden">
+      <div>
+        <div class="compare-label" id="compare-label-a">Layout A</div>
+        <div class="phone-frame-wrapper">
+          <div class="phone-frame" id="compare-phone-a">
+            <div class="phone-notch-camera"></div>
+            <div class="phone-screen" id="compare-screen-a">
+              <canvas class="wallpaper-canvas-compare"></canvas>
+              <div class="screen-time-bar"><span>9:41</span><span>●●●●</span></div>
+              <div class="compare-grid" id="compare-grid-a"></div>
+              <div class="compare-dock" id="compare-dock-a"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="compare-label" id="compare-label-b">Layout B</div>
+        <div class="phone-frame-wrapper">
+          <div class="phone-frame" id="compare-phone-b">
+            <div class="phone-notch-camera"></div>
+            <div class="phone-screen" id="compare-screen-b">
+              <canvas class="wallpaper-canvas-compare"></canvas>
+              <div class="screen-time-bar"><span>9:41</span><span>●●●●</span></div>
+              <div class="compare-grid" id="compare-grid-b"></div>
+              <div class="compare-dock" id="compare-dock-b"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- CONTROLS PANEL -->
+  <aside id="controls">
+    <!-- No selection hint -->
+    <div id="no-selection-hint">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 6px"><circle cx="12" cy="12" r="9"/><path d="M9 9h6M9 12h6M9 15h3"/></svg>
+      Click any placed icon to edit its color, glow, and label. Drag icons from the sidebar onto the grid.
+    </div>
+
+    <!-- Selected icon panel -->
+    <div id="selected-panel">
+      <div class="controls-section">
+        <div class="controls-section-title">Plug Era Colors</div>
+        <div class="plug-colors" id="plug-colors">
+          <div>
+            <div class="color-swatch" style="background:#9747FF;" data-color="#9747FF" onclick="applyColorToSelected('#9747FF')"></div>
+            <span class="color-name">Electric<br/>Purple</span>
+          </div>
+          <div>
+            <div class="color-swatch" style="background:#FF1F8E;" data-color="#FF1F8E" onclick="applyColorToSelected('#FF1F8E')"></div>
+            <span class="color-name">Magenta<br/>Pink</span>
+          </div>
+          <div>
+            <div class="color-swatch" style="background:#39FFC0;" data-color="#39FFC0" onclick="applyColorToSelected('#39FFC0')"></div>
+            <span class="color-name">Mint</span>
+          </div>
+          <div>
+            <div class="color-swatch" style="background:#1a0030;border-color:rgba(151,71,255,0.3);" data-color="#0A0010" onclick="applyColorToSelected('#0A0010')"></div>
+            <span class="color-name">Void</span>
+          </div>
+        </div>
+        <!-- Custom hex -->
+        <div class="hex-row">
+          <div class="hex-preview" id="custom-hex-preview"></div>
+          <input type="text" class="hex-input" id="custom-hex-input" placeholder="#FF6B00" maxlength="7" oninput="onHexInput(this)" />
+          <button class="btn btn-secondary btn-sm" onclick="applyCustomHex()">Apply</button>
+        </div>
+      </div>
+
+      <!-- Glow Controls -->
+      <div class="controls-section">
+        <div class="controls-section-title">Neon Glow</div>
+        <div class="glow-controls">
+          <div>
+            <div class="range-label"><span>Intensity</span><span class="range-val" id="glow-val">60</span></div>
+            <input type="range" id="glow-range" min="0" max="100" value="60" oninput="onGlowChange(this)" />
+          </div>
+          <div>
+            <div class="range-label"><span>Radius</span><span class="range-val" id="glow-radius-val">20</span></div>
+            <input type="range" id="glow-radius" min="4" max="60" value="20" oninput="onGlowRadiusChange(this)" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Widget size -->
+      <div class="controls-section">
+        <div class="controls-section-title">Widget Size</div>
+        <div class="size-btns">
+          <button class="size-btn active" data-size="1x1" onclick="changeWidgetSize('1x1',this)">1×1</button>
+          <button class="size-btn" data-size="2x2" onclick="changeWidgetSize('2x2',this)">2×2</button>
+          <button class="size-btn" data-size="4x2" onclick="changeWidgetSize('4x2',this)">4×2</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Icon Generator -->
+    <div class="controls-section">
+      <div class="controls-section-title">Icon Generator</div>
+      <div class="gen-row">
+        <span class="gen-label">Label</span>
+        <input type="text" class="gen-input" id="gen-label" placeholder="App name" maxlength="12" oninput="updateGenPreview()"/>
+      </div>
+      <div class="gen-row">
+        <span class="gen-label">Symbol</span>
+        <input type="text" class="gen-input" id="gen-emoji" placeholder="📱" maxlength="4" oninput="updateGenPreview()"/>
+      </div>
+      <div class="gen-row">
+        <span class="gen-label">Shape</span>
+        <div class="shape-btns">
+          <button class="shape-btn active" data-shape="superellipse" onclick="setShape('superellipse',this)">iOS</button>
+          <button class="shape-btn" data-shape="rounded" onclick="setShape('rounded',this)">Round</button>
+          <button class="shape-btn" data-shape="circle" onclick="setShape('circle',this)">Circle</button>
+        </div>
+      </div>
+      <div class="gen-row">
+        <span class="gen-label">Color</span>
+        <div class="shape-btns">
+          <button class="shape-btn" style="background:rgba(151,71,255,0.2);border-color:rgba(151,71,255,0.5);" onclick="setGenColor('#9747FF')"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#9747FF;vertical-align:middle;"></span></button>
+          <button class="shape-btn" style="background:rgba(255,31,142,0.2);border-color:rgba(255,31,142,0.5);" onclick="setGenColor('#FF1F8E')"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#FF1F8E;vertical-align:middle;"></span></button>
+          <button class="shape-btn" style="background:rgba(57,255,192,0.2);border-color:rgba(57,255,192,0.5);" onclick="setGenColor('#39FFC0')"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#39FFC0;vertical-align:middle;"></span></button>
+        </div>
+      </div>
+      <div id="gen-preview-wrapper">
+        <canvas id="gen-preview-canvas" width="160" height="160"></canvas>
+      </div>
+      <div class="btn-row" style="margin-bottom:6px;">
+        <button class="btn btn-secondary btn-sm" onclick="exportGenSVG()">SVG</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportGenPNG()">PNG</button>
+        <button class="btn btn-primary btn-sm" onclick="addGenIconToLibrary()">+ Library</button>
+      </div>
+      <button class="btn btn-magenta btn-sm btn-block" onclick="addGenIconToGrid()">Place on Grid</button>
+    </div>
+
+    <!-- Batch export -->
+    <div class="controls-section">
+      <div class="controls-section-title">Batch Export</div>
+      <button class="btn btn-secondary btn-sm btn-block" onclick="batchExportZIP()" style="margin-bottom:6px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export All Icons as ZIP
+      </button>
+    </div>
+
+    <!-- Wallpaper -->
+    <div class="controls-section">
+      <div class="controls-section-title">Wallpaper</div>
+      <div class="wallpaper-presets" id="wp-presets"></div>
+    </div>
+
+    <!-- Layouts / Presets -->
+    <div class="controls-section">
+      <div class="controls-section-title">Saved Layouts</div>
+      <div class="preset-input-row">
+        <input type="text" id="preset-name-input" placeholder="Layout name..." maxlength="24"/>
+        <button class="btn btn-primary btn-sm" onclick="saveCurrentLayout()">Save</button>
+      </div>
+      <div class="preset-list" id="preset-list"></div>
+    </div>
+
+    <!-- Full Export -->
+    <div class="controls-section">
+      <div class="controls-section-title">Canvas Export</div>
+      <div class="export-row">
+        <div class="export-toggle on" id="toggle-frame" onclick="this.classList.toggle('on');updateExportToggle('frame',this)"></div>
+        <span class="export-toggle-label">Include phone frame</span>
+      </div>
+      <div class="export-row">
+        <div class="export-toggle on" id="toggle-glow" onclick="this.classList.toggle('on');updateExportToggle('glow',this)"></div>
+        <span class="export-toggle-label">Include neon glow</span>
+      </div>
+      <button class="btn btn-mint btn-block" onclick="exportFullCanvas()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export 1242×2688px PNG
+      </button>
+    </div>
+
+  </aside>
+</div>
+
+<!-- Drag ghost element -->
+<div id="drag-ghost"></div>
+<!-- Toast -->
+<div id="toast" role="status"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// PLUG ERA WIDGICON STUDIO — Core Engine
+// ═══════════════════════════════════════════════
+
+// ── STATE ────────────────────────────────────────
+const STATE = {
+  grid: new Array(24).fill(null),  // 4×6 = 24 cells
+  dock: new Array(4).fill(null),  // 4 dock slots
+  selectedCell: null,           // index into grid/dock, or null
+  selectedIsDock: false,
+  currentView: 'homescreen',
+  exportFrame: true,
+  exportGlow: true,
+  genShape: 'superellipse',
+  genColor: '#9747FF',
+  currentWallpaper: 0,
+  layouts: {},                  // name → {grid, dock}
+  activeLayout: null,
+  library: [],                  // [{id, label, emoji, color, glow, glowRadius, shape, imgSrc, widgetSize}]
+  compareA: null,
+  compareB: null,
+};
+
+let dragItem = null; // {type:'lib'|'grid'|'dock', libIdx, cellIdx, isDock, data}
+let ghostEl = document.getElementById('drag-ghost');
+let ghostOffX = 0, ghostOffY = 0;
+
+// ── PLUG ERA COLORS ──────────────────────────────
+const PLUG_COLORS = ['#9747FF','#FF1F8E','#39FFC0','#0A0010'];
+
+// ── WALLPAPER PRESETS ────────────────────────────
+const WALLPAPERS = [
+  { name: 'Void Pulse', draw: (ctx, w, h) => {
+    const g = ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w);
+    g.addColorStop(0,'#1a003a'); g.addColorStop(0.5,'#0d0020'); g.addColorStop(1,'#0A0010');
+    ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+    for(let i=0;i<5;i++){
+      const rg = ctx.createRadialGradient(w*Math.random(),h*Math.random(),0,w/2,h/2,w*0.6);
+      rg.addColorStop(0,'rgba(151,71,255,0.15)'); rg.addColorStop(1,'transparent');
+      ctx.fillStyle=rg; ctx.fillRect(0,0,w,h);
+    }
+  }},
+  { name: 'Neon Grid', draw: (ctx, w, h) => {
+    ctx.fillStyle = '#080012'; ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle = 'rgba(151,71,255,0.12)'; ctx.lineWidth = 1;
+    for(let x=0;x<w;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+    for(let y=0;y<h;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+    const mg = ctx.createRadialGradient(w*0.3,h*0.7,0,w*0.3,h*0.7,w*0.5);
+    mg.addColorStop(0,'rgba(255,31,142,0.18)'); mg.addColorStop(1,'transparent');
+    ctx.fillStyle=mg; ctx.fillRect(0,0,w,h);
+  }},
+  { name: 'Aurora', draw: (ctx, w, h) => {
+    ctx.fillStyle = '#050010'; ctx.fillRect(0,0,w,h);
+    const bands = [[0.2,'rgba(151,71,255,0.2)'],[0.45,'rgba(57,255,192,0.12)'],[0.7,'rgba(255,31,142,0.15)']];
+    bands.forEach(([y,c])=>{
+      const g = ctx.createRadialGradient(w/2,h*y,0,w/2,h*y,w*0.8);
+      g.addColorStop(0,c); g.addColorStop(1,'transparent');
+      ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+    });
+  }},
+  { name: 'Plasma', draw: (ctx, w, h) => {
+    ctx.fillStyle = '#0A0010'; ctx.fillRect(0,0,w,h);
+    for(let i=0;i<8;i++){
+      const x=Math.random()*w, y=Math.random()*h;
+      const c=['rgba(151,71,255,0.12)','rgba(255,31,142,0.1)','rgba(57,255,192,0.08)'][i%3];
+      const g = ctx.createRadialGradient(x,y,0,x,y,w*0.4);
+      g.addColorStop(0,c); g.addColorStop(1,'transparent');
+      ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+    }
+  }},
+];
+
+// ── DEFAULT ICONS ────────────────────────────────
+const DEFAULT_ICONS = [
+  {label:'Messages',emoji:'💬',color:'#9747FF'},{label:'Camera',emoji:'📷',color:'#FF1F8E'},
+  {label:'Music',emoji:'🎵',color:'#39FFC0'},{label:'Phone',emoji:'📞',color:'#9747FF'},
+  {label:'Settings',emoji:'⚙️',color:'#FF1F8E'},{label:'Photos',emoji:'🖼️',color:'#39FFC0'},
+  {label:'Browser',emoji:'🌐',color:'#9747FF'},{label:'Clock',emoji:'⏰',color:'#FF1F8E'},
+  {label:'Maps',emoji:'🗺️',color:'#39FFC0'},{label:'Notes',emoji:'📝',color:'#9747FF'},
+  {label:'Wallet',emoji:'💳',color:'#FF1F8E'},{label:'Health',emoji:'❤️',color:'#39FFC0'},
+];
+
+function makeIconData(label, emoji, color, shape='superellipse', imgSrc=null) {
+  return { id: Date.now() + Math.random(), label, emoji, color, glow: 60, glowRadius: 20, shape, imgSrc, widgetSize: '1x1' };
+}
+
+// ── INIT ──────────────────────────────────────────
+function init() {
+  DEFAULT_ICONS.forEach(ic => STATE.library.push(makeIconData(ic.label, ic.emoji, ic.color)));
+  // Pre-place some icons on grid for initial demo
+  [0,1,2,3,4,5,6,7].forEach(i => {
+    if (STATE.library[i]) STATE.grid[i] = Object.assign({}, STATE.library[i], { id: Date.now() + i });
+  });
+  // Pre-place 4 in dock
+  [0,1,2,3].forEach(i => {
+    if (STATE.library[i]) STATE.dock[i] = Object.assign({}, STATE.library[i], { id: Date.now() + 100 + i });
+  });
+  renderLibrary();
+  buildGrid();
+  buildDock();
+  initWallpaperPicker();
+  drawWallpaper(0);
+  updateStatusTime();
+  setInterval(updateStatusTime, 1000);
+  initUploadZone();
+  updateGenPreview();
+  renderPresetList();
+}
+
+// ── TIME ──────────────────────────────────────────
+function updateStatusTime() {
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2,'0');
+  const m = now.getMinutes().toString().padStart(2,'0');
+  const timeStr = `${h}:${m}`;
+  document.getElementById('status-time').textContent = timeStr;
+  document.getElementById('lock-time').textContent = timeStr;
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('lock-date').textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+}
+
+// ── WALLPAPER ──────────────────────────────────────
+function initWallpaperPicker() {
+  const container = document.getElementById('wp-presets');
+  WALLPAPERS.forEach((wp, i) => {
+    const div = document.createElement('div');
+    div.className = 'wp-thumb' + (i===0?' active':'');
+    div.title = wp.name;
+    const cvs = document.createElement('canvas');
+    cvs.width = 90; cvs.height = 160;
+    const ctx = cvs.getContext('2d');
+    wp.draw(ctx, 90, 160);
+    div.appendChild(cvs);
+    div.onclick = () => {
+      document.querySelectorAll('.wp-thumb').forEach(t=>t.classList.remove('active'));
+      div.classList.add('active');
+      STATE.currentWallpaper = i;
+      drawWallpaper(i);
+    };
+    container.appendChild(div);
+  });
+}
+function drawWallpaper(idx) {
+  const cvs = document.getElementById('wallpaper-canvas');
+  const screen = document.getElementById('phone-screen');
+  cvs.width = screen.offsetWidth || 290;
+  cvs.height = screen.offsetHeight || 580;
+  const ctx = cvs.getContext('2d');
+  WALLPAPERS[idx].draw(ctx, cvs.width, cvs.height);
+}
+
+// ── LIBRARY RENDER ────────────────────────────────
+function renderLibrary() {
+  const lib = document.getElementById('icon-library');
+  lib.innerHTML = '';
+  if (STATE.library.length === 0) {
+    lib.innerHTML = '<div class="empty-state"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg>No icons yet. Upload some or generate them.</div>';
+    return;
+  }
+  STATE.library.forEach((icon, idx) => {
+    const el = document.createElement('div');
+    el.className = 'lib-icon';
+    el.draggable = true;
+    el.title = icon.label;
+    el.setAttribute('data-idx', idx);
+    applyIconStyle(el, icon, false);
+    // Drag
+    el.addEventListener('dragstart', e => startLibDrag(e, idx));
+    el.addEventListener('dragend', endDrag);
+    lib.appendChild(el);
+  });
+}
+
+function applyIconStyle(el, icon, placed) {
+  el.innerHTML = '';
+  const size = placed ? 16 : 18;
+  // Background
+  if (icon.imgSrc) {
+    const img = document.createElement('img');
+    img.src = icon.imgSrc;
+    img.className = placed ? 'icon-custom-img' : 'icon-img';
+    el.appendChild(img);
+  } else {
+    const bg = document.createElement('div');
+    bg.className = 'icon-inner-bg';
+    const hex = icon.color || '#9747FF';
+    bg.style.background = `linear-gradient(135deg, ${hex}33, ${hex}11)`;
+    el.appendChild(bg);
+    const em = document.createElement('span');
+    em.className = 'icon-emoji';
+    em.textContent = icon.emoji || '📱';
+    em.style.fontSize = placed ? '20px' : '18px';
+    el.appendChild(em);
+  }
+  // In sidebar only: show label overlay at bottom
+  if (!placed && icon.label) {
+    const lbl = document.createElement('div');
+    lbl.className = 'icon-label';
+    lbl.textContent = icon.label;
+    el.appendChild(lbl);
+  }
+  if (placed && icon.glow > 0 && STATE.exportGlow) {
+    const glowColor = icon.color || '#9747FF';
+    const intensity = icon.glow / 100;
+    const radius = icon.glowRadius || 20;
+    el.style.boxShadow = `0 0 ${radius}px ${glowColor}${Math.round(intensity*255).toString(16).padStart(2,'0')}, 0 0 ${radius*2}px ${glowColor}${Math.round(intensity*0.4*255).toString(16).padStart(2,'0')}`;
+    el.style.borderColor = `${glowColor}55`;
+  } else {
+    el.style.boxShadow = '';
+  }
+}
+
+// ── GRID BUILD ────────────────────────────────────
+function buildGrid() {
+  const grid = document.getElementById('home-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 24; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'grid-cell';
+    cell.setAttribute('data-idx', i);
+    const icon = STATE.grid[i];
+    if (icon) {
+      renderPlacedIcon(cell, icon, i, false);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'cell-placeholder';
+      cell.appendChild(ph);
+    }
+    setupDropTarget(cell, i, false);
+    grid.appendChild(cell);
+  }
+}
+
+function buildDock() {
+  const dock = document.getElementById('dock');
+  dock.innerHTML = '';
+  // Ensure dock is always exactly 4 slots
+  if (!Array.isArray(STATE.dock) || STATE.dock.length !== 4) {
+    STATE.dock = new Array(4).fill(null);
+  }
+  for (let i = 0; i < 4; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'grid-cell';
+    cell.setAttribute('data-idx', i);
+    const icon = STATE.dock[i];
+    if (icon) {
+      renderPlacedIcon(cell, icon, i, true);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'cell-placeholder';
+      cell.appendChild(ph);
+    }
+    setupDropTarget(cell, i, true);
+    dock.appendChild(cell);
+  }
+}
+
+function renderPlacedIcon(cell, icon, idx, isDock) {
+  cell.classList.add('occupied');
+  // Handle widget sizing
+  if (!isDock) {
+    cell.classList.remove('widget-2x2','widget-4x2');
+    if (icon.widgetSize === '2x2') cell.classList.add('widget-2x2');
+    if (icon.widgetSize === '4x2') cell.classList.add('widget-4x2');
+  }
+  const el = document.createElement('div');
+  el.className = 'placed-icon';
+  applyIconStyle(el, icon, true);
+  // Remove button
+  const rm = document.createElement('div');
+  rm.className = 'remove-btn';
+  rm.innerHTML = '✕';
+  rm.onclick = (e) => { e.stopPropagation(); removeIcon(idx, isDock); };
+  el.appendChild(rm);
+  // Select
+  el.onclick = (e) => { e.stopPropagation(); selectIcon(idx, isDock); };
+  // Drag from grid
+  el.draggable = true;
+  el.addEventListener('dragstart', e => startGridDrag(e, idx, isDock));
+  el.addEventListener('dragend', endDrag);
+  cell.appendChild(el);
+  // Label below icon (not in dock)
+  if (!isDock && icon.label) {
+    const lbl = document.createElement('div');
+    lbl.className = 'cell-label';
+    lbl.textContent = icon.label || '';
+    cell.appendChild(lbl);
+  }
+}
+
+// ── DRAG & DROP ────────────────────────────────────
+function startLibDrag(e, libIdx) {
+  dragItem = { type: 'lib', libIdx };
+  const el = e.currentTarget;
+  el.classList.add('dragging');
+  ghostEl.innerHTML = el.outerHTML;
+  ghostEl.style.display = 'block';
+  ghostEl.style.width = el.offsetWidth + 'px';
+  ghostEl.style.height = el.offsetHeight + 'px';
+  ghostOffX = e.offsetX; ghostOffY = e.offsetY;
+  e.dataTransfer.setDragImage(new Image(), 0, 0);
+  e.dataTransfer.effectAllowed = 'copy';
+}
+function startGridDrag(e, cellIdx, isDock) {
+  dragItem = { type: 'grid', cellIdx, isDock };
+  ghostEl.style.display = 'block';
+  ghostOffX = e.offsetX; ghostOffY = e.offsetY;
+  e.dataTransfer.setDragImage(new Image(), 0, 0);
+  e.dataTransfer.effectAllowed = 'move';
+}
+function endDrag(e) {
+  document.querySelectorAll('.lib-icon.dragging').forEach(el=>el.classList.remove('dragging'));
+  ghostEl.style.display = 'none';
+  dragItem = null;
+}
+document.addEventListener('dragover', e => {
+  e.preventDefault();
+  if (ghostEl.style.display !== 'none') {
+    ghostEl.style.left = (e.clientX - ghostOffX) + 'px';
+    ghostEl.style.top = (e.clientY - ghostOffY) + 'px';
+  }
+});
+
+function setupDropTarget(cell, idx, isDock) {
+  cell.addEventListener('dragover', e => {
+    e.preventDefault();
+    cell.classList.add('drag-target');
+  });
+  cell.addEventListener('dragleave', () => cell.classList.remove('drag-target'));
+  cell.addEventListener('drop', e => {
+    e.preventDefault();
+    cell.classList.remove('drag-target');
+    if (!dragItem) return;
+    if (dragItem.type === 'lib') {
+      const libIcon = STATE.library[dragItem.libIdx];
+      const newIcon = Object.assign({}, libIcon, { id: Date.now() + Math.random() });
+      placeIcon(newIcon, idx, isDock);
+    } else if (dragItem.type === 'grid') {
+      const fromIdx = dragItem.cellIdx;
+      const fromDock = dragItem.isDock;
+      const fromArr = fromDock ? STATE.dock : STATE.grid;
+      const toArr = isDock ? STATE.dock : STATE.grid;
+      const movingIcon = fromArr[fromIdx];
+      if (!movingIcon) return;
+      const displaced = toArr[idx];
+      toArr[idx] = movingIcon;
+      fromArr[fromIdx] = displaced || null;
+      buildGrid(); buildDock();
+      selectIcon(idx, isDock);
+    }
+  });
+}
+
+function placeIcon(icon, idx, isDock) {
+  if (isDock) {
+    if (idx < 0 || idx > 3) return; // Safety check
+    STATE.dock[idx] = icon;
+    buildDock();
+  } else {
+    if (idx < 0 || idx > 23) return;
+    STATE.grid[idx] = icon;
+    buildGrid();
+  }
+  selectIcon(idx, isDock);
+}
+
+function removeIcon(idx, isDock) {
+  if (isDock) STATE.dock[idx] = null;
+  else STATE.grid[idx] = null;
+  if (STATE.selectedCell === idx && STATE.selectedIsDock === isDock) deselectIcon();
+  buildGrid(); buildDock();
+}
+
+// ── SELECTION ─────────────────────────────────────
+function selectIcon(idx, isDock) {
+  STATE.selectedCell = idx;
+  STATE.selectedIsDock = isDock;
+  const icon = isDock ? STATE.dock[idx] : STATE.grid[idx];
+  if (!icon) return;
+  // Highlight selected
+  document.querySelectorAll('.placed-icon.selected').forEach(el=>el.classList.remove('selected'));
+  const cells = isDock ? document.getElementById('dock').children : document.getElementById('home-grid').children;
+  if (cells[idx]) {
+    const pi = cells[idx].querySelector('.placed-icon');
+    if (pi) pi.classList.add('selected');
+  }
+  // Show panel
+  document.getElementById('no-selection-hint').style.display = 'none';
+  document.getElementById('selected-panel').style.display = 'block';
+  // Update color swatches active
+  document.querySelectorAll('.color-swatch').forEach(s => {
+    s.classList.toggle('active', s.getAttribute('data-color') === icon.color);
+  });
+  // Update hex input
+  document.getElementById('custom-hex-input').value = icon.color || '';
+  document.getElementById('custom-hex-preview').style.background = icon.color || '#9747FF';
+  // Update glow
+  document.getElementById('glow-range').value = icon.glow || 60;
+  document.getElementById('glow-val').textContent = icon.glow || 60;
+  document.getElementById('glow-radius').value = icon.glowRadius || 20;
+  document.getElementById('glow-radius-val').textContent = icon.glowRadius || 20;
+  // Update size buttons
+  document.querySelectorAll('.size-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-size') === (icon.widgetSize||'1x1'));
+  });
+}
+function deselectIcon() {
+  STATE.selectedCell = null;
+  document.getElementById('no-selection-hint').style.display = '';
+  document.getElementById('selected-panel').style.display = 'none';
+  document.querySelectorAll('.placed-icon.selected').forEach(el=>el.classList.remove('selected'));
+}
+document.getElementById('canvas-area').addEventListener('click', e => {
+  if (!e.target.closest('.placed-icon') && !e.target.closest('.cell-placeholder')) deselectIcon();
+});
+
+// ── COLOR / GLOW ──────────────────────────────────
+function applyColorToSelected(hex) {
+  if (STATE.selectedCell === null) return;
+  const arr = STATE.selectedIsDock ? STATE.dock : STATE.grid;
+  if (!arr[STATE.selectedCell]) return;
+  arr[STATE.selectedCell].color = hex;
+  buildGrid(); buildDock();
+  selectIcon(STATE.selectedCell, STATE.selectedIsDock);
+  document.getElementById('custom-hex-input').value = hex;
+  document.getElementById('custom-hex-preview').style.background = hex;
+}
+function onHexInput(input) {
+  let v = input.value;
+  if (!v.startsWith('#')) { v = '#'+v; input.value = v; }
+  if (/^#[0-9A-Fa-f]{6}$/.test(v)) {
+    document.getElementById('custom-hex-preview').style.background = v;
+  }
+}
+function applyCustomHex() {
+  const v = document.getElementById('custom-hex-input').value;
+  if (/^#[0-9A-Fa-f]{6}$/.test(v)) applyColorToSelected(v);
+  else showToast('Enter a valid hex like #FF6B00');
+}
+function onGlowChange(input) {
+  document.getElementById('glow-val').textContent = input.value;
+  if (STATE.selectedCell === null) return;
+  const arr = STATE.selectedIsDock ? STATE.dock : STATE.grid;
+  if (!arr[STATE.selectedCell]) return;
+  arr[STATE.selectedCell].glow = parseInt(input.value);
+  buildGrid(); buildDock();
+}
+function onGlowRadiusChange(input) {
+  document.getElementById('glow-radius-val').textContent = input.value;
+  if (STATE.selectedCell === null) return;
+  const arr = STATE.selectedIsDock ? STATE.dock : STATE.grid;
+  if (!arr[STATE.selectedCell]) return;
+  arr[STATE.selectedCell].glowRadius = parseInt(input.value);
+  buildGrid(); buildDock();
+}
+function changeWidgetSize(size, btn) {
+  document.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if (STATE.selectedCell === null || STATE.selectedIsDock) return;
+  if (!STATE.grid[STATE.selectedCell]) return;
+  STATE.grid[STATE.selectedCell].widgetSize = size;
+  buildGrid();
+  selectIcon(STATE.selectedCell, false);
+}
+
+// ── ICON GENERATOR ────────────────────────────────
+function setShape(shape, btn) {
+  STATE.genShape = shape;
+  document.querySelectorAll('.shape-btn[data-shape]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updateGenPreview();
+}
+function setGenColor(color) {
+  STATE.genColor = color;
+  updateGenPreview();
+}
+function updateGenPreview() {
+  const cvs = document.getElementById('gen-preview-canvas');
+  const ctx = cvs.getContext('2d');
+  const size = 160;
+  ctx.clearRect(0,0,size,size);
+  const label = document.getElementById('gen-label').value || '';
+  const emoji = document.getElementById('gen-emoji').value || '📱';
+  const color = STATE.genColor;
+  const shape = STATE.genShape;
+  drawIconOnCanvas(ctx, 0, 0, size, size, emoji, label, color, shape, 60, 20);
+}
+
+function drawIconOnCanvas(ctx, x, y, w, h, emoji, label, color, shape, glow, glowRadius) {
+  ctx.save();
+  // Clip shape
+  const r = shape === 'circle' ? Math.min(w,h)/2 : (shape === 'rounded' ? Math.min(w,h)*0.2 : Math.min(w,h)*0.225);
+  roundRect(ctx, x, y, w, h, r, shape);
+  ctx.clip();
+  // Background gradient
+  const bg = ctx.createLinearGradient(x, y, x+w, y+h);
+  bg.addColorStop(0, color+'44');
+  bg.addColorStop(1, color+'11');
+  ctx.fillStyle = bg;
+  ctx.fillRect(x, y, w, h);
+  // Inner border
+  ctx.strokeStyle = color+'55';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+  // Glow
+  if (glow > 0) {
+    ctx.save();
+    ctx.shadowColor = color;
+    ctx.shadowBlur = glowRadius * (glow/100) * 1.5;
+    roundRect(ctx, x+1, y+1, w-2, h-2, shape==='circle'?Math.min(w,h)/2-1:Math.min(w,h)*0.22, shape);
+    ctx.strokeStyle = color + Math.round((glow/100)*120).toString(16).padStart(2,'0');
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+  }
+  // Emoji
+  const emojiSize = Math.min(w,h) * 0.42;
+  ctx.font = `${emojiSize}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = label ? 'middle' : 'middle';
+  const emojiY = label ? y + h * 0.42 : y + h * 0.5;
+  ctx.fillText(emoji, x + w/2, emojiY);
+  // Label
+  if (label) {
+    const fontSize = Math.max(Math.min(w,h)*0.11, 10);
+    ctx.font = `600 ${fontSize}px Inter, sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(label.length > 10 ? label.slice(0,9)+'…' : label, x + w/2, y + h * 0.72);
+  }
+}
+
+function roundRect(ctx, x, y, w, h, r, shape) {
+  if (shape === 'circle') {
+    const cx = x + w/2, cy = y + h/2, rad = Math.min(w,h)/2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, rad, 0, Math.PI*2);
+    return;
+  }
+  // Superellipse / rounded square
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function addGenIconToLibrary() {
+  const label = document.getElementById('gen-label').value || 'Icon';
+  const emoji = document.getElementById('gen-emoji').value || '📱';
+  const icon = makeIconData(label, emoji, STATE.genColor, STATE.genShape);
+  STATE.library.push(icon);
+  renderLibrary();
+  showToast(`"${label}" added to library`);
+}
+function addGenIconToGrid() {
+  const label = document.getElementById('gen-label').value || 'Icon';
+  const emoji = document.getElementById('gen-emoji').value || '📱';
+  const icon = makeIconData(label, emoji, STATE.genColor, STATE.genShape);
+  // Find first empty cell
+  const empty = STATE.grid.findIndex(c=>c===null);
+  if (empty === -1) { showToast('Grid is full!'); return; }
+  STATE.grid[empty] = icon;
+  buildGrid();
+  selectIcon(empty, false);
+  showToast(`"${label}" placed on grid`);
+}
+
+// ── EXPORT INDIVIDUAL ICON ────────────────────────
+function genIconPNGDataURL(icon, size=1024) {
+  const cvs = document.createElement('canvas');
+  cvs.width = size; cvs.height = size;
+  const ctx = cvs.getContext('2d');
+  const emoji = icon ? icon.emoji : document.getElementById('gen-emoji').value || '📱';
+  const label = icon ? icon.label : document.getElementById('gen-label').value || '';
+  const color = icon ? icon.color : STATE.genColor;
+  const shape = icon ? icon.shape : STATE.genShape;
+  const glow = icon ? icon.glow : 60;
+  const glowRadius = icon ? icon.glowRadius : 20;
+  drawIconOnCanvas(ctx, 0, 0, size, size, emoji, label, color, shape, glow, glowRadius);
+  return cvs.toDataURL('image/png');
+}
+function genIconSVG(icon) {
+  const emoji = icon ? icon.emoji : document.getElementById('gen-emoji').value || '📱';
+  const label = icon ? icon.label : document.getElementById('gen-label').value || '';
+  const color = icon ? icon.color : STATE.genColor;
+  const shape = icon ? icon.shape : STATE.genShape;
+  const r = shape === 'circle' ? 50 : (shape === 'rounded' ? 20 : 22.5);
+  const rectAttr = shape === 'circle'
+    ? `<circle cx="50" cy="50" r="50" fill="${color}44" stroke="${color}55" stroke-width="2"/>`
+    : `<rect x="0" y="0" width="100" height="100" rx="${r}" fill="${color}44" stroke="${color}55" stroke-width="2"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="1024" height="1024">
+  <defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  ${rectAttr}
+  <text x="50" y="${label ? '48' : '55'}" font-size="38" text-anchor="middle" dominant-baseline="middle" filter="url(#glow)">${emoji}</text>
+  ${label ? `<text x="50" y="80" font-size="11" font-family="Inter,sans-serif" font-weight="600" fill="rgba(255,255,255,0.9)" text-anchor="middle">${label}</text>` : ''}
+</svg>`;
+}
+function exportGenPNG() {
+  const url = genIconPNGDataURL(null, 1024);
+  dlFile(url, 'icon.png');
+  showToast('Icon exported as PNG');
+}
+function exportGenSVG() {
+  const svg = genIconSVG(null);
+  const blob = new Blob([svg], {type:'image/svg+xml'});
+  dlFile(URL.createObjectURL(blob), 'icon.svg');
+  showToast('Icon exported as SVG');
+}
+
+async function batchExportZIP() {
+  const zip = new JSZip();
+  const png = zip.folder('png');
+  const svg_folder = zip.folder('svg');
+  const allIcons = [...STATE.grid, ...STATE.dock].filter(Boolean);
+  if (allIcons.length === 0) {
+    showToast('No icons on grid to export');
+    return;
+  }
+  showToast('Building ZIP…');
+  allIcons.forEach((icon, i) => {
+    const name = (icon.label || 'icon').replace(/[^a-z0-9]/gi,'_').toLowerCase();
+    // PNG
+    const dataUrl = genIconPNGDataURL(icon, 512);
+    const b64 = dataUrl.split(',')[1];
+    png.file(`${name}_${i}.png`, b64, {base64:true});
+    // SVG
+    const svgStr = genIconSVG(icon);
+    svg_folder.file(`${name}_${i}.svg`, svgStr);
+  });
+  const blob = await zip.generateAsync({type:'blob'});
+  dlFile(URL.createObjectURL(blob), 'plug-era-icons.zip');
+  showToast(`Exported ${allIcons.length} icons as ZIP`);
+}
+
+// ── FULL CANVAS EXPORT ────────────────────────────
+function exportFullCanvas() {
+  const W = 1242, H = 2688;
+  const cvs = document.createElement('canvas');
+  cvs.width = W; cvs.height = H;
+  const ctx = cvs.getContext('2d');
+
+  // Draw wallpaper
+  WALLPAPERS[STATE.currentWallpaper].draw(ctx, W, H);
+
+  // Phone frame
+  if (STATE.exportFrame) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(151,71,255,0.5)';
+    ctx.lineWidth = 8;
+    const fr = 80;
+    roundRect(ctx, 20, 20, W-40, H-40, fr, 'rounded');
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Status bar
+  ctx.font = '600 36px Inter,sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.textAlign = 'left';
+  ctx.fillText('9:41', 60, 90);
+  ctx.textAlign = 'right';
+  ctx.fillText('●●●●', W-60, 90);
+
+  // Grid icons
+  const COL = 4, ROWS = 6;
+  const padX = 80, padY = 130;
+  const iconW = (W - padX*2 - 24*3) / COL;
+  const iconH = iconW;
+  const gapX = (W - padX*2 - iconW*COL) / (COL-1);
+  const gapY = iconH * 0.25;
+
+  STATE.grid.forEach((icon, i) => {
+    if (!icon) return;
+    const col = i % COL, row = Math.floor(i / COL);
+    const x = padX + col*(iconW+gapX);
+    const y = padY + row*(iconH+gapY);
+    let w2 = iconW, h2 = iconH;
+    if (icon.widgetSize === '2x2') { w2 = iconW*2+gapX; h2 = iconH*2+gapY; }
+    if (icon.widgetSize === '4x2') { w2 = W-padX*2; h2 = iconH*2+gapY; }
+    if (STATE.exportGlow && icon.glow > 0) {
+      ctx.save();
+      ctx.shadowColor = icon.color || '#9747FF';
+      ctx.shadowBlur = (icon.glowRadius||20) * (icon.glow/100) * 2;
+      ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+    }
+    drawIconOnCanvas(ctx, x, y, w2, h2, icon.emoji||'📱', icon.label||'', icon.color||'#9747FF', icon.shape||'superellipse', STATE.exportGlow ? (icon.glow||60) : 0, icon.glowRadius||20);
+    if (STATE.exportGlow && icon.glow > 0) ctx.restore();
+    // Icon label below
+    ctx.font = '500 28px Inter,sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.textAlign = 'center';
+    ctx.shadowBlur = 0;
+    ctx.fillText((icon.label||'').slice(0,10), x + w2/2, y + h2 + 32);
+  });
+
+  // Dock
+  const dockY = H - 220;
+  const dockPad = 60;
+  const dockW = (W - dockPad*2 - 24*3) / COL;
+  ctx.save();
+  roundRect(ctx, dockPad*0.5, dockY - 20, W - dockPad, dockW + 80, 50, 'rounded');
+  ctx.fillStyle = 'rgba(151,71,255,0.08)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(151,71,255,0.2)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+
+  STATE.dock.forEach((icon, i) => {
+    if (!icon) return;
+    const x = dockPad + i*(dockW + (W-dockPad*2-dockW*4)/3);
+    drawIconOnCanvas(ctx, x, dockY, dockW, dockW, icon.emoji||'📱', '', icon.color||'#9747FF', icon.shape||'superellipse', STATE.exportGlow ? (icon.glow||60) : 0, icon.glowRadius||20);
+  });
+
+  const url = cvs.toDataURL('image/png');
+  dlFile(url, 'plug-era-homescreen.png');
+  showToast('Exported 1242×2688px PNG');
+}
+
+// ── UPLOAD ────────────────────────────────────────
+function initUploadZone() {
+  const zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  });
+}
+function handleFileUpload(e) { handleFiles(e.target.files); }
+function handleFiles(files) {
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const name = file.name.replace(/\.[^.]+$/,'');
+      const icon = makeIconData(name, '', '#9747FF', 'superellipse', ev.target.result);
+      STATE.library.push(icon);
+      renderLibrary();
+      showToast(`"${name}" uploaded to library`);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── VIEW SWITCHING ────────────────────────────────
+function switchView(view) {
+  STATE.currentView = view;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-view')===view));
+  const cw = document.getElementById('canvas-wrapper');
+  const comp = document.getElementById('compare-wrapper');
+  if (view === 'compare') {
+    cw.classList.add('hidden');
+    comp.classList.remove('hidden');
+    renderCompare();
+  } else {
+    cw.classList.remove('hidden');
+    comp.classList.add('hidden');
+    const lock = document.getElementById('lock-screen');
+    lock.classList.toggle('visible', view === 'lockscreen');
+  }
+}
+
+// ── LAYOUTS / PRESETS ─────────────────────────────
+function saveCurrentLayout() {
+  const nameInput = document.getElementById('preset-name-input');
+  const name = nameInput.value.trim() || `Layout ${Object.keys(STATE.layouts).length + 1}`;
+  STATE.layouts[name] = {
+    grid: JSON.parse(JSON.stringify(STATE.grid)),
+    dock: JSON.parse(JSON.stringify(STATE.dock)),
+    wallpaper: STATE.currentWallpaper,
+  };
+  STATE.activeLayout = name;
+  nameInput.value = '';
+  renderPresetList();
+  showToast(`"${name}" saved`);
+}
+function loadLayout(name) {
+  if (!STATE.layouts[name]) return;
+  const layout = STATE.layouts[name];
+  STATE.grid = JSON.parse(JSON.stringify(layout.grid));
+  STATE.dock = JSON.parse(JSON.stringify(layout.dock));
+  STATE.activeLayout = name;
+  STATE.currentWallpaper = layout.wallpaper || 0;
+  buildGrid(); buildDock();
+  drawWallpaper(STATE.currentWallpaper);
+  document.querySelectorAll('.wp-thumb').forEach((t,i) => t.classList.toggle('active', i===STATE.currentWallpaper));
+  renderPresetList();
+  showToast(`"${name}" loaded`);
+}
+function deleteLayout(name) {
+  delete STATE.layouts[name];
+  if (STATE.activeLayout === name) STATE.activeLayout = null;
+  renderPresetList();
+  showToast(`"${name}" deleted`);
+}
+function renderPresetList() {
+  const list = document.getElementById('preset-list');
+  list.innerHTML = '';
+  const names = Object.keys(STATE.layouts);
+  if (names.length === 0) {
+    list.innerHTML = '<div class="empty-state" style="padding:10px;font-size:10px;color:var(--text-faint)">No saved layouts yet.</div>';
+    return;
+  }
+  names.forEach(name => {
+    const item = document.createElement('div');
+    item.className = 'preset-item' + (STATE.activeLayout === name ? ' active' : '');
+    const dot = document.createElement('div');
+    dot.className = 'preset-dot';
+    dot.style.background = STATE.activeLayout === name ? 'var(--purple)' : 'var(--text-faint)';
+    const lbl = document.createElement('div');
+    lbl.className = 'preset-item-name';
+    lbl.textContent = name;
+    const del = document.createElement('button');
+    del.className = 'preset-delete';
+    del.innerHTML = '✕';
+    del.title = 'Delete';
+    del.onclick = (e) => { e.stopPropagation(); deleteLayout(name); };
+    item.appendChild(dot);
+    item.appendChild(lbl);
+    item.appendChild(del);
+    item.onclick = () => loadLayout(name);
+    list.appendChild(item);
+  });
+}
+
+// ── COMPARE MODE ──────────────────────────────────
+function renderCompare() {
+  const names = Object.keys(STATE.layouts);
+  if (names.length < 1) {
+    document.getElementById('compare-label-a').textContent = 'Save layouts first!';
+    document.getElementById('compare-label-b').textContent = '';
+    return;
+  }
+  const nameA = names[0];
+  const nameB = names[1] || names[0];
+  document.getElementById('compare-label-a').textContent = nameA;
+  document.getElementById('compare-label-b').textContent = nameB;
+  renderComparePhone('a', STATE.layouts[nameA]);
+  renderComparePhone('b', STATE.layouts[nameB]);
+}
+function renderComparePhone(side, layout) {
+  if (!layout) return;
+  const grid = document.getElementById(`compare-grid-${side}`);
+  const dock = document.getElementById(`compare-dock-${side}`);
+  grid.className = 'compare-grid';
+  grid.style.cssText = 'position:relative;z-index:1;padding:8px 12px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;';
+  dock.style.cssText = 'position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 16px 12px;padding:8px 10px;background:rgba(151,71,255,0.08);border-radius:20px;border:1px solid rgba(151,71,255,0.2);';
+  // render wallpaper
+  const screen = document.getElementById(`compare-screen-${side}`);
+  const cvs = screen.querySelector('.wallpaper-canvas-compare');
+  if (cvs) {
+    cvs.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;';
+    cvs.width = screen.offsetWidth||290; cvs.height = screen.offsetHeight||580;
+    const ctx = cvs.getContext('2d');
+    WALLPAPERS[layout.wallpaper||0].draw(ctx, cvs.width, cvs.height);
+  }
+  grid.innerHTML=''; dock.innerHTML='';
+  layout.grid.forEach((icon, i) => {
+    const cell = document.createElement('div');
+    cell.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;';
+    if (icon) {
+      const el = document.createElement('div');
+      el.style.cssText = `width:100%;aspect-ratio:1;border-radius:14px;display:flex;align-items:center;justify-content:center;background:${icon.color||'#9747FF'}22;border:1px solid ${icon.color||'#9747FF'}44;font-size:16px;box-shadow:0 0 ${icon.glowRadius||12}px ${icon.color||'#9747FF'}${Math.round((icon.glow||60)/100*180).toString(16).padStart(2,'0')};`;
+      el.textContent = icon.imgSrc ? '' : (icon.emoji||'📱');
+      if (icon.imgSrc) { const img = document.createElement('img'); img.src=icon.imgSrc; img.style='width:100%;height:100%;object-fit:cover;border-radius:13px;'; el.appendChild(img); }
+      cell.appendChild(el);
+      const lbl = document.createElement('div');
+      lbl.style.cssText = 'font-size:7px;color:rgba(255,255,255,0.6);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;';
+      lbl.textContent = icon.label||'';
+      cell.appendChild(lbl);
+    } else {
+      const ph = document.createElement('div');
+      ph.style.cssText = 'width:100%;aspect-ratio:1;border-radius:14px;border:1px dashed rgba(151,71,255,0.1);';
+      cell.appendChild(ph);
+    }
+    grid.appendChild(cell);
+  });
+  layout.dock.forEach(icon => {
+    const el = document.createElement('div');
+    el.style.cssText = `aspect-ratio:1;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:18px;${icon?`background:${icon.color||'#9747FF'}22;border:1px solid ${icon.color||'#9747FF'}44;`:'border:1px dashed rgba(151,71,255,0.1);'}`;
+    if (icon) { if(icon.imgSrc){const img=document.createElement('img');img.src=icon.imgSrc;img.style='width:100%;height:100%;object-fit:cover;border-radius:13px;';el.appendChild(img);}else el.textContent=icon.emoji||'📱'; }
+    dock.appendChild(el);
+  });
+}
+
+// ── EXPORT TOGGLES ────────────────────────────────
+function updateExportToggle(type, el) {
+  if (type === 'frame') STATE.exportFrame = el.classList.contains('on');
+  if (type === 'glow') {
+    STATE.exportGlow = el.classList.contains('on');
+    buildGrid(); buildDock();
+  }
+}
+
+// ── UTILS ─────────────────────────────────────────
+function dlFile(url, name) {
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+}
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── RESIZE WALLPAPER ON RESIZE ────────────────────
+const ro = new ResizeObserver(() => drawWallpaper(STATE.currentWallpaper));
+ro.observe(document.getElementById('phone-screen'));
+
+// ── KICK OFF ──────────────────────────────────────
+init();
+
+// Service Worker registration (PWA)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+<script data-pplx-inline-edit>
+(function(){
+  if(window===window.top)return;
+  function inlineAll(orig,clone){
+    if(orig.nodeType!==1)return;
+    try{
+      var cs=getComputedStyle(orig);
+      var t='';
+      for(var i=0;i<cs.length;i++){t+=cs[i]+':'+cs.getPropertyValue(cs[i])+';';}
+      clone.style.cssText=t;
+    }catch(e){}
+    var oc=orig.children,cc=clone.children;
+    for(var j=0;j<oc.length&&j<cc.length;j++){inlineAll(oc[j],cc[j]);}
+  }
+  function stripExternal(clone){
+    var imgs=clone.querySelectorAll('img');
+    for(var i=0;i<imgs.length;i++){
+      var s=imgs[i].getAttribute('src');
+      if(s&&!s.startsWith('data:'))imgs[i].removeAttribute('src');
+    }
+    var all=clone.querySelectorAll('*');
+    for(var i=0;i<all.length;i++){
+      var st=all[i].style.cssText;
+      if(st&&st.indexOf('url(')>=0){
+        all[i].style.cssText=st.replace(/url\(["']?(?!data:)[^)"']*["']?\)/gi,'none');
+      }
+    }
+  }
+  window.addEventListener('message',function(e){
+    if(!e.data||e.data.type!=='INLINE_EDIT_CAPTURE_REQUEST')return;
+    var scrollX=window.scrollX||window.pageXOffset||0;
+    var scrollY=window.scrollY||window.pageYOffset||0;
+    var w=window.innerWidth,h=window.innerHeight;
+    try{
+      var clone=document.documentElement.cloneNode(true);
+      var rm=clone.querySelectorAll('script,link[rel="stylesheet"],style');
+      for(var i=0;i<rm.length;i++){rm[i].remove();}
+      inlineAll(document.documentElement,clone);
+      stripExternal(clone);
+      var html=new XMLSerializer().serializeToString(clone);
+      var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'
+        +'<foreignObject width="100%" height="100%">'
+        +'<div xmlns="http://www.w3.org/1999/xhtml" style="width:'+w+'px;height:'+h+'px;overflow:hidden">'
+        +'<div style="transform:translate(-'+scrollX+'px,-'+scrollY+'px);transform-origin:top left">'
+        +html+'</div></div></foreignObject></svg>';
+      var svgUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+      var img=new Image();
+      img.onload=function(){
+        var c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0);
+        window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:c.toDataURL('image/png'),scrollX:scrollX,scrollY:scrollY},'*');
+      };
+      img.onerror=function(){
+        window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:null,scrollX:scrollX,scrollY:scrollY},'*');
+      };
+      img.src=svgUrl;
+    }catch(err){
+      window.parent.postMessage({type:'INLINE_EDIT_SCREENSHOT_RESULT',dataUrl:null,scrollX:scrollX,scrollY:scrollY},'*');
+    }
+  });
+})();
+</script></body>
+</html>
